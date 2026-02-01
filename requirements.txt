@@ -1,0 +1,40 @@
+# From the 0.11.1 release of https://github.com/Comfy-Org/ComfyUI/blob/master/requirements.txt
+
+# Torch
+torchvision==0.25.0
+torchaudio==2.10.0
+torch==2.10.0
+# Performance boost
+onnxruntime-gpu==1.23.2
+sageattention==1.0.6
+xformers==0.0.34
+# Non essential
+pydantic-settings~=2.12.0
+pydantic~=2.12.0
+spandrel~=0.4.0
+kornia~=0.8.0
+# Comfyui specific
+comfyui-workflow-templates==0.8.27
+comfyui-frontend-package==1.37.11
+comfyui-embedded-docs==0.4.0
+comfy-kitchen>=0.2.7
+comfy_aimdo
+# Everything else I couldn't bother categorizing
+transformers>=4.50.3
+tokenizers>=0.13.3
+safetensors>=0.4.2
+aiohttp>=3.11.8
+numpy>=1.25.0
+yarl>=1.18.0
+av>=14.2.0
+sentencepiece
+SQLAlchemy
+requests
+torchsde
+alembic
+einops
+pyyaml
+Pillow
+psutil
+scipy
+tqdm
