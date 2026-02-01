@@ -10,4 +10,5 @@
 
 ### Windows
 `.\init.ps1`
+
 `docker compose up`
