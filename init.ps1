@@ -13,11 +13,15 @@ if (Test-Path "./app") {
     Remove-Item "./app" -Recurse -Force
 }
 
-# Download ComfyUI
-Write-Host "Downloading ComfyUI v0.11.1..."
-$url = "https://github.com/Comfy-Org/ComfyUI/archive/refs/tags/v0.11.1.zip"
+# Download ComfyUI only if zip doesn't exist
 $zipFile = "ComfyUI-0.11.1.zip"
-Invoke-WebRequest -Uri $url -OutFile $zipFile
+if (-not (Test-Path $zipFile)) {
+    Write-Host "Downloading ComfyUI v0.11.1..."
+    $url = "https://github.com/Comfy-Org/ComfyUI/archive/refs/tags/v0.11.1.zip"
+    Invoke-WebRequest -Uri $url -OutFile $zipFile
+} else {
+    Write-Host "Using existing $zipFile..."
+}
 
 # Unzip to current directory
 Write-Host "Extracting archive..."
@@ -41,8 +45,6 @@ if (Test-Path "./.cache_backup") {
 
 # Cleanup
 Write-Host "Cleaning up..."
-Remove-Item $zipFile -Force
-
 if (Test-Path "./app/requirements.txt") {
     Remove-Item "./app/requirements.txt" -Force
 }

@@ -8,7 +8,10 @@
 
 ## Usage
 
-### Windows
-`.\init.ps1`
+To (re)clone ComfyUI, run `./init.ps1`
 
-`docker compose up`
+WARNING: This will wipe out the `./app` directory, only `./app/.cache` will be preserved
+
+To start ComfyUI, run `docker compose up`
+
+If you change `requirements.txt` or add a custom node to `setup.sh`, run `docker compose build`
