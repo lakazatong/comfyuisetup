@@ -1,0 +1,5 @@
+Speed up sam2 package installation
+Make sure custom nodes dependencies are installed using the same 3 step process as the ones in setup.sh
+Make sure symlinks (across drives) work
+Test performance for CUDA 13 + sage attention VS CUDA 12 + xFormers
+Improve checkpoints and loras discovery (finding Civitai links from safetensors filenames)

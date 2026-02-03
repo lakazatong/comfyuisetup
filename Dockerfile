@@ -4,9 +4,9 @@ RUN pip install --root-user-action=ignore pip-tools wheel
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git dos2unix \
+    build-essential ffmpeg \
     libgl1 libglx-mesa0 libglib2.0-0 \
     fonts-dejavu-core fontconfig \
-    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /requirements.txt
