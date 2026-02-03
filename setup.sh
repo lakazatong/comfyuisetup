@@ -44,6 +44,7 @@ for entry in "${custom_nodes[@]}"; do
     clone_if_not_exist "$owner" "$name" req_files
 done
 
+resolved_deps=0
 # Resolve packages if resolved-requirements.txt is missing or at least one repo was cloned
 if [ ! -f "$RESOLVED_REQ" ] || [ "$cloned_any" -eq 1 ]; then
     echo "Resolving dependencies..."
@@ -53,10 +54,11 @@ if [ ! -f "$RESOLVED_REQ" ] || [ "$cloned_any" -eq 1 ]; then
         --newline crlf \
         --index-url https://download.pytorch.org/whl/cu130 \
         --extra-index-url https://pypi.org/simple
+    resolved_deps=1
 fi
 
 # Download packages if wheels folder is missing or at least one repo was cloned
-if [ ! -d "$WHEEL_CACHE" ] || [ "$cloned_any" -eq 1 ]; then
+if [ ! -d "$WHEEL_CACHE" ] || [ "$cloned_any" -eq 1 ] || [ "$resolved_deps" -eq 1 ]; then
     echo "Downloading wheels..."
     pip wheel -r "$RESOLVED_REQ" -w "$WHEEL_CACHE" \
         --index-url https://download.pytorch.org/whl/cu130 \
