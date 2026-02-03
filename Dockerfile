@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /requirements.txt
-COPY setup.sh /setup.sh
 COPY entrypoint.sh /entrypoint.sh
+COPY setup.sh /setup.sh
 
 RUN dos2unix /entrypoint.sh
 RUN dos2unix /setup.sh
