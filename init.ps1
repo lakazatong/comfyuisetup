@@ -1,35 +1,50 @@
-# Get the script directory
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-# URL and paths
-$zipUrl = "https://github.com/Comfy-Org/ComfyUI/archive/refs/tags/v0.11.1.zip"
-$zipPath = Join-Path $ScriptDir "ComfyUI.zip"
-$extractTemp = Join-Path $ScriptDir "temp_extract"
-$appPath = Join-Path $ScriptDir "app"
-
-# Download the zip
-Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath
-
-# Ensure temporary extraction folder exists
-if (Test-Path $extractTemp) { Remove-Item $extractTemp -Recurse -Force }
-New-Item -ItemType Directory -Path $extractTemp | Out-Null
-
-# Extract all
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $extractTemp)
-
-# Ensure app folder exists
-if (-not (Test-Path $appPath)) { New-Item -ItemType Directory -Path $appPath | Out-Null }
-
-# Move contents of ComfyUI-0.11.1 to app folder
-$sourceFolder = Join-Path $extractTemp "ComfyUI-0.11.1"
-Get-ChildItem -Path $sourceFolder -Force | ForEach-Object {
-    Move-Item -Path $_.FullName -Destination $appPath -Force
+# Check if ./app/.cache exists and back it up
+if (Test-Path "./app/.cache") {
+    Write-Host "Backing up ./app/.cache to ./.cache_backup..."
+    if (Test-Path "./.cache_backup") {
+        Remove-Item "./.cache_backup" -Recurse -Force
+    }
+    Move-Item "./app/.cache" "./.cache_backup"
 }
 
-# Clean up
-Remove-Item $zipPath
-Remove-Item $extractTemp -Recurse -Force
-Remove-Item "app/requirements.txt"
+# Force remove ./app if it exists
+if (Test-Path "./app") {
+    Write-Host "Removing ./app..."
+    Remove-Item "./app" -Recurse -Force
+}
 
-Write-Output "ComfyUI extracted to $appPath"
+# Download ComfyUI
+Write-Host "Downloading ComfyUI v0.11.1..."
+$url = "https://github.com/Comfy-Org/ComfyUI/archive/refs/tags/v0.11.1.zip"
+$zipFile = "ComfyUI-0.11.1.zip"
+Invoke-WebRequest -Uri $url -OutFile $zipFile
+
+# Unzip to current directory
+Write-Host "Extracting archive..."
+Expand-Archive -Path $zipFile -DestinationPath "." -Force
+
+# Create ./app directory
+New-Item -ItemType Directory -Path "./app" -Force | Out-Null
+
+# Move contents from ./ComfyUI-0.11.1 to ./app
+Write-Host "Moving files to ./app..."
+Get-ChildItem -Path "./ComfyUI-0.11.1" | Move-Item -Destination "./app" -Force
+
+# Remove the now-empty ComfyUI-0.11.1 folder
+Remove-Item "./ComfyUI-0.11.1" -Force
+
+# Restore cache if backup exists
+if (Test-Path "./.cache_backup") {
+    Write-Host "Restoring cache..."
+    Move-Item "./.cache_backup" "./app/.cache"
+}
+
+# Cleanup
+Write-Host "Cleaning up..."
+Remove-Item $zipFile -Force
+
+if (Test-Path "./app/requirements.txt") {
+    Remove-Item "./app/requirements.txt" -Force
+}
+
+Write-Host "Done!"
