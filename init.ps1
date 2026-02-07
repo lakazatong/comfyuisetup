@@ -1,11 +1,3 @@
-# Backup ./app/.cache
-$cacheBackup = "./.cache-backup"
-if (Test-Path "./app/.cache") {
-    Write-Host "Backing up ./app/.cache to $cacheBackup..."
-    if (Test-Path $cacheBackup) { Remove-Item $cacheBackup -Recurse -Force }
-    Move-Item "./app/.cache" $cacheBackup
-}
-
 # Backup ./app/custom_nodes
 $customNodesBackup = "./custom_nodes-backup"
 if (Test-Path "./app/custom_nodes") {
@@ -46,12 +38,6 @@ Get-ChildItem -Path "./ComfyUI-0.11.1" | Move-Item -Destination "./app" -Force
 
 # Remove the now-empty ComfyUI-0.11.1 folder
 Remove-Item "./ComfyUI-0.11.1" -Force
-
-# Restore .cache
-if (Test-Path $cacheBackup) {
-    Write-Host "Restoring cache..."
-    Move-Item $cacheBackup "./app/.cache"
-}
 
 # Restore custom_nodes
 if (Test-Path $customNodesBackup) {

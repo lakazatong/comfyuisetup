@@ -10,7 +10,7 @@
 
 To (re)clone ComfyUI, run `./init.ps1`
 
-WARNING: This will wipe out the `./app` directory, only `./app/.cache` and `./app/custom_nodes` will be preserved
+WARNING: This will wipe out the `./app` directory, only `./app/custom_nodes` will be preserved
 
 To start ComfyUI, run `docker compose up`
 

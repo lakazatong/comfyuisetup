@@ -1,7 +1,7 @@
 name: comfyui
 
 services:
-  comfyk:
+  comfyui:
     build: .
     image: comfyui:latest
     container_name: comfyui

@@ -7,7 +7,7 @@ torch==2.10.0
 # Performance boost
 #
 # Note about xformers:
-# I'm aware of the warning:
+# For those that have this warning or similar:
 #
 # WARNING[XFORMERS]: xFormers can't load C++/CUDA extensions. xFormers was built for:
 #     PyTorch 2.10.0+cu128 with CUDA 1208 (you have 2.10.0+cu130)
@@ -16,13 +16,12 @@ torch==2.10.0
 #   Memory-efficient attention, SwiGLU, sparse and more won't be available.
 #   Set XFORMERS_MORE_DETAILS=1 for more details
 #
-# When comfyui starts
-# But until it supports CUDA 13 and Python 3.12, I'll leave it here
-# This is all because CUDA 13 is overall better than CUDA 12,
-# and it isn't worth downgrading for xformers
+# Ignore it, you will use sageattention instead, if you want to make sure, look for
+# "Using sage attention" when ComyUI starts
+# Otherwise you might just be using xformers instead of sageattention
 onnxruntime-gpu==1.23.2
 sageattention==1.0.6
-# xformers>=0.0.34
+xformers>=0.0.34
 # Non essential
 pydantic-settings~=2.12.0
 pydantic~=2.12.0
