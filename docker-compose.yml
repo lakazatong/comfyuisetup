@@ -10,15 +10,15 @@ services:
     volumes:
       - ./app:/app
       - cache:/root/.cache
-      # If you want you could create a symlink to E:/my_checkpoints at ./app/models/checkpoints
+      # If you want you could create a symlink to E:/my_models at ./app/models
       #
       # If this setup is on disk C, you will have to share some of disk E to Docker:
       # Docker Desktop -> settings -> Resources -> File sharing
-      # And add E:/my_checkpoints
+      # And add E:/my_models
       #
       # If you add some here, you will need to `docker compose up` again
       #
-      # - E:/my_checkpoints:/app/models/checkpoints
+      # - E:/my_models:/app/models
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
@@ -33,5 +33,7 @@ services:
               count: all
               capabilities: [gpu]
 
+# contains the UV cache
+# You can delete the volume in Docker Desktop if you want to clear it
 volumes:
   cache:
