@@ -63,4 +63,4 @@ uv pip install -r "$RESOLVED_REQS" \
     --compile-bytecode \
     --cache-dir "$UV_CACHE"
 duration=$SECONDS
-echo "Total time: $((duration / 60)) min $((duration % 60)) sec"
+echo "Installing time: $((duration / 60)) min $((duration % 60)) sec"
