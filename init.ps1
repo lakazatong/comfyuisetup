@@ -70,6 +70,10 @@ foreach ($item in $backupList) {
 
     if (Test-Path $backup) {
         Write-Host "Restoring $backup to $source..."
+        $parent = Split-Path $source -Parent
+        if ($parent -and -not (Test-Path $parent)) {
+            New-Item -ItemType Directory -Path $parent -Force | Out-Null
+        }
         switch ($mode) {
             "file" { Move-Item $backup $source -Force }
             "folder" { Move-Item $backup $source -Force }
