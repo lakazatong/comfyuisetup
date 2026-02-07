@@ -1,10 +1,20 @@
-# Check if ./app/.cache exists and back it up
+# Backup ./app/.cache
+$cacheBackup = "./.cache-backup"
 if (Test-Path "./app/.cache") {
-    Write-Host "Backing up ./app/.cache to ./.cache_backup..."
-    if (Test-Path "./.cache_backup") {
-        Remove-Item "./.cache_backup" -Recurse -Force
+    Write-Host "Backing up ./app/.cache to $cacheBackup..."
+    if (Test-Path $cacheBackup) { Remove-Item $cacheBackup -Recurse -Force }
+    Move-Item "./app/.cache" $cacheBackup
+}
+
+# Backup ./app/custom_nodes
+$customNodesBackup = "./custom_nodes-backup"
+if (Test-Path "./app/custom_nodes") {
+    Write-Host "Backing up subfolders of ./app/custom_nodes to $customNodesBackup..."
+    if (Test-Path $customNodesBackup) { Remove-Item $customNodesBackup -Recurse -Force }
+    New-Item -ItemType Directory -Path $customNodesBackup | Out-Null
+    Get-ChildItem "./app/custom_nodes" -Directory | ForEach-Object {
+        Move-Item $_.FullName "$customNodesBackup/$_"
     }
-    Move-Item "./app/.cache" "./.cache_backup"
 }
 
 # Force remove ./app if it exists
@@ -37,16 +47,23 @@ Get-ChildItem -Path "./ComfyUI-0.11.1" | Move-Item -Destination "./app" -Force
 # Remove the now-empty ComfyUI-0.11.1 folder
 Remove-Item "./ComfyUI-0.11.1" -Force
 
-# Restore cache if backup exists
-if (Test-Path "./.cache_backup") {
+# Restore .cache
+if (Test-Path $cacheBackup) {
     Write-Host "Restoring cache..."
-    Move-Item "./.cache_backup" "./app/.cache"
+    Move-Item $cacheBackup "./app/.cache"
 }
 
-# Cleanup
-Write-Host "Cleaning up..."
-if (Test-Path "./app/requirements.txt") {
-    Remove-Item "./app/requirements.txt" -Force
+# Restore custom_nodes
+if (Test-Path $customNodesBackup) {
+    Write-Host "Restoring custom_nodes..."
+    Get-ChildItem $customNodesBackup -Directory | ForEach-Object {
+        Move-Item $_.FullName "./app/custom_nodes/"
+    }
+    Remove-Item $customNodesBackup -Recurse -Force
 }
+
+# Overwrite requirements
+Write-Host "Overwriting ./app/requirements.txt with ./requirements.txt..."
+Copy-Item "./requirements.txt" "./app/requirements.txt" -Force
 
 Write-Host "Done!"

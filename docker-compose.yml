@@ -12,6 +12,7 @@ services:
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
+      - YOLO_CONFIG_DIR=/app/user/default
     stdin_open: true
     tty: true
     deploy:

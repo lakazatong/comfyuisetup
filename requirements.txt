@@ -22,7 +22,7 @@ torch==2.10.0
 # and it isn't worth downgrading for xformers
 onnxruntime-gpu==1.23.2
 sageattention==1.0.6
-xformers>=0.0.34
+# xformers>=0.0.34
 # Non essential
 pydantic-settings~=2.12.0
 pydantic~=2.12.0
