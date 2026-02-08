@@ -182,73 +182,82 @@ async function main() {
         const modelType = nodeTypeToModelType[type];
         const queryFn = nodeTypeToQueryFn[type];
 
-        if (modelType && queryFn && Array.isArray(node.widgets_values)) {
-            console.log();
-            for (const widgetValue of node.widgets_values) {
-                let query = queryFn(widgetValue);
-                if (!query) continue;
+        if (!modelType || !queryFn || !Array.isArray(node.widgets_values)) continue;
+        
+        console.log();
+        
+        for (const widgetValue of node.widgets_values) {
+            let query = queryFn(widgetValue);
+            if (!query) continue;
 
-                query = query.split(/[/\\]/).pop();
+            // Sometimes names have a path like prefix
+            // Only keep the last part
+            query = query.split(/[/\\]/).pop();
 
-                if (query in seen) continue;
+            if (query in seen) continue;
 
-                let limit = 1;
-                let hits = await searchCivitai(query, limit);
-                // console.log(hits);
+            let limit = 1;
+            let hits = await searchCivitai(query, limit);
 
-                let selected = null;
-                while (!selected && hits?.length > 0) {
-                    const versions = [];
+            let selected = null;
+            while (!selected && hits?.length > 0) {
+                const versions = [];
 
-                    for (const hit of hits) {
-                        const modelData = await fetchModelData(hit);
-                        if (!modelData) continue;
+                for (const hit of hits) {
+                    const modelData = await fetchModelData(hit);
+                    if (!modelData) continue;
 
-                        for (const a of modelData?.props?.pageProps?.trpcState?.json?.queries) {
-                            if ("modelVersions" in a?.state?.data) {
-                                for (const modelVersion of a.state.data.modelVersions) {
-                                    for (const file of modelVersion.files) {
-                                        versions.push({ modelVersion, file });
-                                    }
+                    for (const a of modelData?.props?.pageProps?.trpcState?.json?.queries) {
+                        if ("modelVersions" in a?.state?.data) {
+                            for (const modelVersion of a.state.data.modelVersions) {
+                                for (const file of modelVersion.files) {
+                                    versions.push({ modelVersion, file });
                                 }
-                                break;
                             }
+                            break;
                         }
-                    }
-
-                    if (versions.length === 0) break;
-
-                    // check exact match first
-                    selected = versions.find(v => v.file.name === query);
-
-                    if (!selected) {
-                        const choices = [null, ...versions.map(v => v), { more: true }];
-                        const prompt = new Select({
-                            name: 'modelVersion',
-                            message: `[${modelType}] ${query} - select file`,
-                            choices: choices.map(v => {
-                                if (!v) return "Skip";
-                                if (v.more) return "More...";
-                                return `${v.modelVersion.name} (${v.file.name})`;
-                            })
-                        });
-
-                        const answer = await prompt.run();
-                        if (answer === "Skip") break;
-
-                        if (answer === "More...") {
-                            limit += 1;
-                            hits = await searchCivitai(query, limit);
-                            continue; // rerun loop with more hits
-                        }
-
-                        selected = choices.find(v => v && `${v.modelVersion.name} (${v.file.name})` === answer);
                     }
                 }
 
-                seen[query] = true;
-                if (selected) selectedFiles.push({ path: modelTypeToPath[modelType], file: selected.file });
+                if (versions.length === 0) break;
+
+                // Check exact match first
+                selected = versions.find(v => v.file.name === query);
+
+                // Lucky :)
+                // Actually that's often the case, few people bother rename models
+                if (selected) continue;
+
+                const skipSymbol = Symbol("Skip");
+                const moreSymbol = Symbol("More");
+
+                const choices = [skipSymbol, ...versions.map(v => v), moreSymbol];
+                const prompt = new Select({
+                    name: 'modelVersion',
+                    message: `[${modelType}] ${query} - select file`,
+                    choices: choices.map(v => {
+                        if (v === skipSymbol) return "Skip";
+                        if (v === moreSymbol) return "More...";
+                        return `${v.modelVersion.name} (${v.file.name})`;
+                    })
+                });
+
+                const answer = await prompt.run();
+                if (answer === "Skip") break;
+
+                if (answer === "More...") {
+                    limit += 1;
+                    hits = await searchCivitai(query, limit);
+                    continue; // rerun loop with more hits
+                }
+
+                selected = choices.find(v => v && `${v.modelVersion.name} (${v.file.name})` === answer);
             }
+
+            // Whether selected is null or not we mark it as seen
+            // If it was skipped we don't want to prompt it again
+            seen[query] = true;
+            if (selected) selectedFiles.push({ path: modelTypeToPath[modelType], file: selected.file });
         }
     }
 
